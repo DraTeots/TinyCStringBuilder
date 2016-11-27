@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stm32F7DiscoVisualGDB", "Stm32F7DiscoVisualGDB.vcxproj", "{D9E06C4F-536E-4740-A8AF-DE92987B737C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|VisualGDB = Debug|VisualGDB
+		Release|VisualGDB = Release|VisualGDB
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D9E06C4F-536E-4740-A8AF-DE92987B737C}.Debug|VisualGDB.ActiveCfg = Debug|VisualGDB
+		{D9E06C4F-536E-4740-A8AF-DE92987B737C}.Debug|VisualGDB.Build.0 = Debug|VisualGDB
+		{D9E06C4F-536E-4740-A8AF-DE92987B737C}.Release|VisualGDB.ActiveCfg = Release|VisualGDB
+		{D9E06C4F-536E-4740-A8AF-DE92987B737C}.Release|VisualGDB.Build.0 = Release|VisualGDB
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
