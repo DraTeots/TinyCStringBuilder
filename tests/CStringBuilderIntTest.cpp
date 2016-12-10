@@ -2,6 +2,9 @@
 #include "catch.hpp"
 #include "CStringBuilder.hpp"
 
+
+using namespace tcsb;
+
 SCENARIO( "Create and use simple CStringBuilder", "[CStringBuilder]" ) {
     GIVEN( "A vector with some items" ) {
         const size_t bufferSize = 100;
@@ -120,6 +123,7 @@ SCENARIO( "Create and use simple CStringBuilder", "[CStringBuilder]" ) {
 }
 
 SCENARIO( "Insufficient buffer", "[CStringBuilder]" ) {
+
     GIVEN("A vector with some items") {
         const size_t bufferSize = 5;
         char buffer[bufferSize];
@@ -134,6 +138,12 @@ SCENARIO( "Insufficient buffer", "[CStringBuilder]" ) {
 
             }
         }
+        AND_WHEN("We add integer to it"){
+            THEN("It should not fall over the edges") {
+                REQUIRE_NOTHROW(sb.addValue(55));
+            }
+        }
+
 
         WHEN("Add long integer") {
             sb.append(123456789);
@@ -145,3 +155,4 @@ SCENARIO( "Insufficient buffer", "[CStringBuilder]" ) {
         }
     }
 }
+

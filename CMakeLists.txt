@@ -11,9 +11,12 @@ include_directories(
 
 set(SOURCE_FILES
 
-    CStringBuilder.hpp
-    tests/catch.cpp
-    tests/CStringBuilderTest.cpp
-    )
+        #CStringBuilder.hpp
+        tests/catch.cpp
+        tests/catch.hpp
+        tests/CStringBuilderIntTest.cpp
+        tests/CStringBuilderFloatTest.cpp
+        tests/Benchmark.cpp
+        )
 
 add_executable(TinyStringBuilderTests ${SOURCE_FILES} CStringBuilder.hpp)

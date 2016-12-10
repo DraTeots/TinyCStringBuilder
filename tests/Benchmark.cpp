@@ -1,7 +1,10 @@
 #include "catch.hpp"
 #include <cstdlib>
 #include <chrono>
+#include <iostream>
 #include "CStringBuilder.hpp"
+
+using namespace tcsb;
 
 uint32_t HAL_GetTick() {
     return std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
@@ -15,7 +18,7 @@ TEST_CASE("CSctingBuilder vs. snprintf", "[Benchmark]") {
 
     // -------- REVERSE BENCHMARK 1-----------
     uint32_t start = HAL_GetTick();
-    uint64_t countDown = 10000000;
+    uint64_t countDown = 100000;
 
     while (countDown--) {
         x = std::rand();
@@ -27,12 +30,12 @@ TEST_CASE("CSctingBuilder vs. snprintf", "[Benchmark]") {
     }
     uint32_t stop = HAL_GetTick();
     sprintf(buffer, "rand %u", stop - start);
-    INFO(buffer);
+    //std::cout<<buffer<<std::endl;
 
 
     // -------- REVERSE BENCHMARK 2 -----------
     start = HAL_GetTick();
-    countDown = 10000000;
+    countDown = 100000;
 
     while (countDown--) {
         x = std::rand();
