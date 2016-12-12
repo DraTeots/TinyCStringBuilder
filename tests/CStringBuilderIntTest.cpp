@@ -113,7 +113,17 @@ SCENARIO( "Create and use simple CStringBuilder", "[CStringBuilder]" ) {
 
         WHEN("Add string and value") {
             uint64_t value = 18446744073709551614U;
-            sb.dadd("haha! ", value);
+            sb.add("haha! ", value);
+
+            THEN("it should be properly displayed") {
+                REQUIRE(sb.cStr() == std::string("haha! 18446744073709551614"));
+            }
+        }
+
+        WHEN("Add string as array and value") {
+            uint64_t value = 18446744073709551614U;
+            char haha[100]="haha! ";
+            sb.add(haha, 100, value);
 
             THEN("it should be properly displayed") {
                 REQUIRE(sb.cStr() == std::string("haha! 18446744073709551614"));

@@ -46,6 +46,15 @@ SCENARIO( "Floating point CStringBuilder fpconv_dtoa" , "[CStringBuilder]" ) {
                 REQUIRE(len == 18);
             }
         }
+
+        WHEN("There is infinite fraction2") {
+            size_t len = sb.addf(1/3.0);
+
+            THEN("We get it with positive exponent") {
+                REQUIRE(sb.cStr() == std::string("0.3333333333333333"));
+                REQUIRE(len == 18);
+            }
+        }
     }
 }
 

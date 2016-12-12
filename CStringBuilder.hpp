@@ -208,18 +208,18 @@ public:
     size_t add(uint64_t value) { return IntTypeToS<uint64_t>(value); }   /// Converts uint64_t to string and adds to the buffer
 
     template <std::size_t SIZE>
-    size_t dadd(CharType (&array)[SIZE], uint64_t value){
+    size_t add(CharType (&array)[SIZE], uint64_t value){
         return add(array, SIZE) + add((uint64_t)value);
     }
 
     template <std::size_t SIZE>
-    size_t dadd(const CharType (&array)[SIZE], uint64_t value){
-        return add(array, SIZE) + add((uint64_t)value);
+    size_t add(const CharType (&array)[SIZE], uint64_t value){
+        return add(&array[0], SIZE) + add((uint64_t)value);
     }
 
     /** Append by C string */
     template<class CharConstPtr, typename = typename std::enable_if<std::is_same<CharConstPtr, CharType const*>::value>>
-    size_t dadd(CharConstPtr array, std::size_t size, uint64_t value) {
+    size_t add(CharConstPtr array, std::size_t size, uint64_t value) {
         return add(array, size) + add((uint64_t)value);
     };
 
@@ -657,6 +657,8 @@ public:
         setStringEnd();
         return size;
     }
+
+
 #endif //#if TCSB_USE_FP
 
 #if TCSB_USE_SEPARATOR
