@@ -58,8 +58,8 @@ TEST_CASE("CSctingBuilder vs. snprintf", "[Benchmark]") {
     while (countDown--) {
         x = std::rand();
         CStringBuilder sb(buffer, 100);
-        sb.append("simple insertion of x=");
-        sb.append((uint32_t)x);
+        sb.add("simple insertion of x=");
+        sb.add((uint32_t)x);
         count++;
         if (!x)
         {

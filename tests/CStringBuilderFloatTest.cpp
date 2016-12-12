@@ -12,7 +12,7 @@ SCENARIO( "Floating point CStringBuilder fpconv_dtoa" , "[CStringBuilder]" ) {
         CStringBuilder sb(buffer, bufferSize);
 
         WHEN("There is usual double") {
-            int len = sb.fpconv_dtoa(3.14, buffer);
+            size_t len = sb.addf(3.14);
 
             THEN("We get it stringified") {
                 REQUIRE(sb.cStr() == std::string("3.14"));
@@ -21,7 +21,7 @@ SCENARIO( "Floating point CStringBuilder fpconv_dtoa" , "[CStringBuilder]" ) {
         }
 
         WHEN("There is very small double") {
-            int len = sb.fpconv_dtoa(0.0000003, buffer);
+            size_t len = sb.addf(0.0000003);
 
             THEN("We get it with negative exponent") {
                 REQUIRE(sb.cStr() == std::string("3e-7"));
@@ -30,7 +30,7 @@ SCENARIO( "Floating point CStringBuilder fpconv_dtoa" , "[CStringBuilder]" ) {
         }
 
         WHEN("There is very big double") {
-            int len = sb.fpconv_dtoa(3000000000000, buffer);
+            size_t len = sb.addf(3000000000000);
 
             THEN("We get it with positive exponent") {
                 REQUIRE(sb.cStr() == std::string("3e+12"));
@@ -38,12 +38,12 @@ SCENARIO( "Floating point CStringBuilder fpconv_dtoa" , "[CStringBuilder]" ) {
             }
         }
 
-        WHEN("There is very big double") {
-            int len = sb.fpconv_dtoa(1/3.0, buffer);
+        WHEN("There is infinite fraction") {
+            size_t len = sb.addf(1/3.0);
 
             THEN("We get it with positive exponent") {
-                REQUIRE(sb.cStr() == std::string("3e+12"));
-                REQUIRE(len == 5);
+                REQUIRE(sb.cStr() == std::string("0.3333333333333333"));
+                REQUIRE(len == 18);
             }
         }
     }

@@ -16,7 +16,7 @@ SCENARIO( "Create and use simple CStringBuilder", "[CStringBuilder]" ) {
         REQUIRE(sb.bufferSize());
 
         WHEN("Add another string") {
-            sb.append("ha!");
+            sb.add("ha!");
 
             THEN("the size and capacity change") {
                 REQUIRE(sb.size() == 3);
@@ -29,7 +29,7 @@ SCENARIO( "Create and use simple CStringBuilder", "[CStringBuilder]" ) {
         }
 
         WHEN("Append by 0 digit int") {
-            sb.append(0);
+            sb.add(0);
 
             THEN("it should be properly displayed") {
                 REQUIRE(sb.cStr() == std::string("0"));
@@ -38,7 +38,7 @@ SCENARIO( "Create and use simple CStringBuilder", "[CStringBuilder]" ) {
         }
 
         WHEN("Add many digits int is passed") {
-            sb.append(-1234);
+            sb.add(-1234);
 
             THEN("it should be properly displayed") {
 
@@ -52,42 +52,42 @@ SCENARIO( "Create and use simple CStringBuilder", "[CStringBuilder]" ) {
         }
 
         WHEN("Add int8_t") {
-            sb.append((int8_t) -3);
+            sb.add((int8_t) -3);
 
             THEN("it should be properly displayed") {
                 REQUIRE(sb.cStr() == std::string("-3"));
             }
         }
         WHEN("Add uint8_t") {
-            sb.append((uint8_t) 250);
+            sb.add((uint8_t) 250);
 
             THEN("it should be properly displayed") {
                 REQUIRE(sb.cStr() == std::string("250"));
             }
         }
         WHEN("Add int16_t") {
-            sb.append((int16_t) -30000);
+            sb.add((int16_t) -30000);
 
             THEN("it should be properly displayed") {
                 REQUIRE(sb.cStr() == std::string("-30000"));
             }
         }
         WHEN("Add uint16_t") {
-            sb.append((uint16_t) 60000);
+            sb.add((uint16_t) 60000);
 
             THEN("it should be properly displayed") {
                 REQUIRE(sb.cStr() == std::string("60000"));
             }
         }
         WHEN("Add int32_t") {
-            sb.append((int32_t) -2147483600);
+            sb.add((int32_t) -2147483600);
 
             THEN("it should be properly displayed") {
                 REQUIRE(sb.cStr() == std::string("-2147483600"));
             }
         }
         WHEN("Add uint32_t") {
-            sb.append((uint32_t) 4294967295U);
+            sb.add((uint32_t) 4294967295U);
 
             THEN("it should be properly displayed") {
                 REQUIRE(sb.cStr() == std::string("4294967295"));
@@ -95,7 +95,7 @@ SCENARIO( "Create and use simple CStringBuilder", "[CStringBuilder]" ) {
         }
 
         WHEN("Add int64_t") {
-            sb.append((int64_t) -9223372036854775800);
+            sb.add((int64_t) -9223372036854775800);
 
             THEN("it should be properly displayed") {
                 REQUIRE(sb.cStr() == std::string("-9223372036854775800"));
@@ -104,7 +104,7 @@ SCENARIO( "Create and use simple CStringBuilder", "[CStringBuilder]" ) {
 
         WHEN("Add uint64_t") {
             uint64_t value = 18446744073709551614U;
-            sb.append(value);
+            sb.add(value);
 
             THEN("it should be properly displayed") {
                 REQUIRE(sb.cStr() == std::string("18446744073709551614"));
@@ -113,7 +113,7 @@ SCENARIO( "Create and use simple CStringBuilder", "[CStringBuilder]" ) {
 
         WHEN("Add string and value") {
             uint64_t value = 18446744073709551614U;
-            sb.addValue("haha!", value);
+            sb.dadd("haha! ", value);
 
             THEN("it should be properly displayed") {
                 REQUIRE(sb.cStr() == std::string("haha! 18446744073709551614"));
@@ -130,7 +130,7 @@ SCENARIO( "Insufficient buffer", "[CStringBuilder]" ) {
         CStringBuilder sb(buffer, bufferSize);
 
         WHEN("Add long string") {
-            sb.append("123456789");
+            sb.add("123456789");
 
             THEN("It should be truncated") {
                 REQUIRE(sb.cStr() == std::string("1234"));
@@ -140,13 +140,13 @@ SCENARIO( "Insufficient buffer", "[CStringBuilder]" ) {
         }
         AND_WHEN("We add integer to it"){
             THEN("It should not fall over the edges") {
-                REQUIRE_NOTHROW(sb.addValue(55));
+                REQUIRE_NOTHROW(sb.add(55));
             }
         }
 
 
         WHEN("Add long integer") {
-            sb.append(123456789);
+            sb.add(123456789);
 
             THEN("It should be truncated") {
                 //TODO REQUIRE(sb.cStr() == std::string("1234"));

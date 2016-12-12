@@ -46,16 +46,10 @@ namespace tcsb {
 #endif
 
 #if TCSB_USE_FP
-typedef struct Fp {
+typedef struct TCSB_Fp {
     uint64_t frac;
     int exp;
-} Fp;
-
-    union {
-        double   dbl;
-        uint64_t i;
-    } dbl_bits;
-
+} TCSB_Fp;
 #endif  //#if TCSB_USE_FP
 
 
@@ -69,6 +63,7 @@ private:
     CharType _separator = (CharType)' ';
     std::size_t _bufferSize;
     std::size_t _cursor;
+    bool _isOverflow;
 
     void setStringEnd() {
         _buffer[_cursor] = '\0';
@@ -77,7 +72,7 @@ private:
     /* reverse:  reverse string s in place */
     void reverse(char s[])
     {
-        int i, j;
+        size_t i, j;
         char c;
 
         for (i = 0, j = strlen(s)-1; i<j; i++, j--) {
@@ -99,18 +94,16 @@ private:
 
         /* record sign */
         isNegative = n < 0;
-        if ( isNegative) {
+        if (isNegative) {
             _cursor++;       /* increase length fo 1 */
             n = -n;          /* make n positive */
-            
-            if (_bufferSize - 1 <= _cursor)     // Check buffer overflow
-            {
+
+            // Check buffer overflow
+            if (_bufferSize - 1 <= _cursor) {
                 setStringEnd();
                 return 1;
             }
         }
-        
-        
 
         i = 0;
         do {       /* generate digits in reverse order */
@@ -120,9 +113,9 @@ private:
             _cursor++;
 
         } while (n > 0 && _cursor < _bufferSize-1);     /* delete it */
-        
-        if (_bufferSize - 1 <= _cursor)     // Check buffer overflow
-        {
+
+        // Check buffer overflow
+        if (_bufferSize - 1 <= _cursor) {
             setStringEnd();
             return 1;
         }
@@ -137,14 +130,6 @@ private:
         return i;
     }
 
-    /** Adds separator in the beginning if this is not the first addition*/
-    template <typename IntType>
-    size_t addIntValue(IntType n)
-    {
-        if(_cursor!=0) return addSeparator() + IntTypeToS(n);   // add separator (' ') by def. if not the first line
-        return IntTypeToS(n);
-    }
-
 public:
     /**
      \rst
@@ -156,7 +141,9 @@ public:
         _buffer = buffer;
         _bufferSize = bufferSize;
         _cursor = 0;
+        _isOverflow = false;
         setStringEnd();
+
     }
 
     /**
@@ -171,6 +158,7 @@ public:
         _buffer = array;
         _bufferSize = SIZE;
         _cursor = 0;
+        _isOverflow = false;
         setStringEnd();
     }
 
@@ -182,9 +170,12 @@ public:
     /** The actual size of the resulting string */
     size_t size(void) { return _cursor; }
 
+    char * cStr() { return _buffer;}
 
+
+    /** Append by C string */
     template<class CharConstPtr, typename = typename std::enable_if<std::is_same<CharConstPtr, CharType const*>::value>>
-    size_t appendCStr(CharConstPtr array, std::size_t size) {
+    size_t add(CharConstPtr array, std::size_t size) {
         if(_bufferSize - 1 == _cursor) return 0;
         size_t i;
 
@@ -197,71 +188,42 @@ public:
         return i;
     }
 
-    size_t addCStr(const CharType *array, std::size_t size) {
-        if(_cursor!=0) return addSeparator() + appendCStr(array, size);   // add separator (' ') by def. if not the first line
-        return appendCStr(array, size);
+    template <std::size_t SIZE>
+    size_t add(CharType (&array)[SIZE]){
+        return add(array, SIZE);
     }
 
-    template<class CharConstPtr, typename = typename std::enable_if<std::is_same<CharConstPtr, CharType const*>::value>>
-    size_t append(CharConstPtr array, std::size_t size) {
-        return appendCStr(array, size);
+    template <std::size_t SIZE>
+    size_t add(const CharType (&array)[SIZE]){
+        return add(&array[0], SIZE);
+    }
 
+    size_t add(int8_t value)   { return IntTypeToS<int8_t>(value); }     /// Converts int8_t to string and adds to the buffer
+    size_t add(uint8_t value)  { return IntTypeToS<uint8_t>(value); }    /// Converts uint8_t to string and adds to the buffer
+    size_t add(int16_t value)  { return IntTypeToS<int16_t>(value); }    /// Converts int16_t to string and adds to the buffer
+    size_t add(uint16_t value) { return IntTypeToS<uint16_t>(value); }   /// Converts uint16_t to string and adds to the buffer
+    size_t add(int32_t value)  { return IntTypeToS<int32_t>(value); }    /// Converts int32_t to string and adds to the buffer
+    size_t add(uint32_t value) { return IntTypeToS<uint32_t>(value); }   /// Converts uint32_t to string and adds to the buffer
+    size_t add(int64_t value)  { return IntTypeToS<int64_t>(value); }    /// Converts int64_t to string and adds to the buffer
+    size_t add(uint64_t value) { return IntTypeToS<uint64_t>(value); }   /// Converts uint64_t to string and adds to the buffer
+
+    template <std::size_t SIZE>
+    size_t dadd(CharType (&array)[SIZE], uint64_t value){
+        return add(array, SIZE) + add((uint64_t)value);
+    }
+
+    template <std::size_t SIZE>
+    size_t dadd(const CharType (&array)[SIZE], uint64_t value){
+        return add(array, SIZE) + add((uint64_t)value);
+    }
+
+    /** Append by C string */
+    template<class CharConstPtr, typename = typename std::enable_if<std::is_same<CharConstPtr, CharType const*>::value>>
+    size_t dadd(CharConstPtr array, std::size_t size, uint64_t value) {
+        return add(array, size) + add((uint64_t)value);
     };
 
-    template <std::size_t SIZE>
-    size_t append(CharType (&array)[SIZE]){
-        return appendCStr(array, SIZE);
-    }
 
-    template <std::size_t SIZE>
-    size_t append(const CharType (&array)[SIZE]){
-        return appendCStr(array, SIZE);
-    }
-
-    size_t append(int8_t value)   { return IntTypeToS<int8_t>(value); }     /// Converts int8_t to string and adds to the buffer
-    size_t append(uint8_t value)  { return IntTypeToS<uint8_t>(value); }    /// Converts uint8_t to string and adds to the buffer
-    size_t append(int16_t value)  { return IntTypeToS<int16_t>(value); }    /// Converts int16_t to string and adds to the buffer
-    size_t append(uint16_t value) { return IntTypeToS<uint16_t>(value); }   /// Converts uint16_t to string and adds to the buffer
-    size_t append(int32_t value)  { return IntTypeToS<int32_t>(value); }    /// Converts int32_t to string and adds to the buffer
-    size_t append(uint32_t value) { return IntTypeToS<uint32_t>(value); }   /// Converts uint32_t to string and adds to the buffer
-    size_t append(int64_t value)  { return IntTypeToS<int64_t>(value); }    /// Converts int64_t to string and adds to the buffer
-    size_t append(uint64_t value) { return IntTypeToS<uint64_t>(value); }   /// Converts uint64_t to string and adds to the buffer
-
-    template <std::size_t SIZE>
-    size_t addValue(const CharType (&array)[SIZE]){
-        return addCStr(array, SIZE) + addSeparator();
-    }
-
-    size_t addValue(int8_t value)   { return addIntValue<int8_t>(value)   ;}   /// Converts int8_t to string and adds to the buffer
-    size_t addValue(uint8_t value)  { return addIntValue<uint8_t>(value)  ;}   /// Converts uint8_t to string and adds to the buffer
-    size_t addValue(int16_t value)  { return addIntValue<int16_t>(value)  ;}   /// Converts int16_t to string and adds to the buffer
-    size_t addValue(uint16_t value) { return addIntValue<uint16_t>(value) ;}   /// Converts uint16_t to string and adds to the buffer
-    size_t addValue(int32_t value)  { return addIntValue<int32_t>(value)  ;}   /// Converts int32_t to string and adds to the buffer
-    size_t addValue(uint32_t value) { return addIntValue<uint32_t>(value) ;}   /// Converts uint32_t to string and adds to the buffer
-    size_t addValue(int64_t value)  { return addIntValue<int64_t>(value)  ;}   /// Converts int64_t to string and adds to the buffer
-    size_t addValue(uint64_t value) { return addIntValue<uint64_t>(value) ;}   /// Converts uint64_t to string and adds to the buffer
-
-
-    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], int8_t value  )  { return addCStr(array, SIZE) + addSeparator() + IntTypeToS<int8_t>(value)   ; }   /// Converts int8_t to string and adds to the buffer
-    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], uint8_t value )  { return addCStr(array, SIZE) + addSeparator() + IntTypeToS<uint8_t>(value)  ; }   /// Converts uint8_t to string and adds to the buffer
-    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], int16_t value )  { return addCStr(array, SIZE) + addSeparator() + IntTypeToS<int16_t>(value)  ; }   /// Converts int16_t to string and adds to the buffer
-    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], uint16_t value)  { return addCStr(array, SIZE) + addSeparator() + IntTypeToS<uint16_t>(value) ; }   /// Converts uint16_t to string and adds to the buffer
-    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], int32_t value )  { return addCStr(array, SIZE) + addSeparator() + IntTypeToS<int32_t>(value)  ; }   /// Converts int32_t to string and adds to the buffer
-    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], uint32_t value)  { return addCStr(array, SIZE) + addSeparator() + IntTypeToS<uint32_t>(value) ; }   /// Converts uint32_t to string and adds to the buffer
-    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], int64_t value )  { return addCStr(array, SIZE) + addSeparator() + IntTypeToS<int64_t>(value)  ; }   /// Converts int64_t to string and adds to the buffer
-    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], uint64_t value)  { return addCStr(array, SIZE) + addSeparator() + IntTypeToS<uint64_t>(value) ; }   /// Converts uint64_t to string and adds to the buffer
-    size_t addSeparator(CharType sepCh)
-    {
-        if(_bufferSize - 1 == _cursor) return 0;
-        _buffer[_cursor] = (CharType)sepCh;
-        _cursor++;
-        setStringEnd();
-        return 1;
-    }
-
-    size_t addSeparator() { return addSeparator(_separator);}
-
-    char * cStr() { return _buffer;}
 
 #if TCSB_USE_FP
 
@@ -280,7 +242,7 @@ private:
     #define TCSB_expmax     -32
     #define TCSB_expmin     -60
 
-    static constexpr const Fp powers_ten[TCSB_npowers] = {
+    static constexpr const TCSB_Fp powers_ten[TCSB_npowers] = {
             { 18054884314459144840U, -1220 }, { 13451937075301367670U, -1193 },
             { 10022474136428063862U, -1166 }, { 14934650266808366570U, -1140 },
             { 11127181549972568877U, -1113 }, { 16580792590934885855U, -1087 },
@@ -327,7 +289,7 @@ private:
             { 12648080533535911531U, 1066 }
     };
 
-    static Fp find_cachedpow10(int exp, int* k)
+    static TCSB_Fp find_cachedpow10(int exp, int* k)
     {
         const double one_log_ten = 0.30102999566398114;
 
@@ -383,11 +345,11 @@ private:
         return dbl_bits.i;
     }
 
-    Fp build_fp(double d)
+    TCSB_Fp build_fp(double d)
     {
         uint64_t bits = get_dbits(d);
 
-        Fp fp;
+        TCSB_Fp fp;
         fp.frac = bits & TCSB_fracmask;
         fp.exp = (bits & TCSB_expmask) >> 52;
 
@@ -402,7 +364,7 @@ private:
         return fp;
     }
 
-    void normalize(Fp* fp)
+    void normalize(TCSB_Fp* fp)
     {
         while ((fp->frac & TCSB_hiddenbit) == 0) {
             fp->frac <<= 1;
@@ -414,7 +376,7 @@ private:
         fp->exp -= shift;
     }
 
-    void get_normalized_boundaries(Fp* fp, Fp* lower, Fp* upper)
+    void get_normalized_boundaries(TCSB_Fp* fp, TCSB_Fp* lower, TCSB_Fp* upper)
     {
         upper->frac = (fp->frac << 1) + 1;
         upper->exp  = fp->exp - 1;
@@ -440,7 +402,7 @@ private:
         lower->exp = upper->exp;
     }
 
-    Fp multiply(Fp* a, Fp* b)
+    TCSB_Fp multiply(TCSB_Fp* a, TCSB_Fp* b)
     {
         const uint64_t lomask = 0x00000000FFFFFFFF;
 
@@ -453,7 +415,7 @@ private:
         /* round up */
         tmp += 1U << 31;
 
-        Fp fp = {
+        TCSB_Fp fp = {
                 ah_bh + (ah_bl >> 32) + (al_bh >> 32) + (tmp >> 32),
                 a->exp + b->exp + 64
         };
@@ -471,12 +433,12 @@ private:
         }
     }
 
-    int generate_digits(Fp* fp, Fp* upper, Fp* lower, char* digits, int* K)
+    int generate_digits(TCSB_Fp* fp, TCSB_Fp* upper, TCSB_Fp* lower, char* digits, int* K)
     {
         uint64_t wfrac = upper->frac - fp->frac;
         uint64_t delta = upper->frac - lower->frac;
 
-        Fp one;
+        TCSB_Fp one;
         one.frac = 1ULL << -upper->exp;
         one.exp  = upper->exp;
 
@@ -525,7 +487,6 @@ private:
             if (part2 < delta) {
                 *K += kappa;
                 round_digit(digits, idx, delta, part2, one.frac, wfrac * *unit);
-
                 return idx;
             }
 
@@ -535,15 +496,15 @@ private:
 
     int grisu2(double d, char* digits, int* K)
     {
-        Fp w = build_fp(d);
+        TCSB_Fp w = build_fp(d);
 
-        Fp lower, upper;
+        TCSB_Fp lower, upper;
         get_normalized_boundaries(&w, &lower, &upper);
 
         normalize(&w);
 
         int k;
-        Fp cp = find_cachedpow10(upper.exp, &k);
+        TCSB_Fp cp = find_cachedpow10(upper.exp, &k);
 
         w     = multiply(&w,     &cp);
         upper = multiply(&upper, &cp);
@@ -647,7 +608,6 @@ private:
 
         if(bits & TCSB_fracmask) {
             dest[0] = 'n'; dest[1] = 'a'; dest[2] = 'n';
-
         } else {
             dest[0] = 'i'; dest[1] = 'n'; dest[2] = 'f';
         }
@@ -655,13 +615,11 @@ private:
         return 3;
     }
 
-public:
-
-    int fpconv_dtoa(double d, char dest[24])
+    size_t fpconv_dtoa(double d, char dest[24])
     {
         char digits[18];
 
-        int str_len = 0;
+        size_t str_len = 0;
         bool neg = false;
 
         if(get_dbits(d) & TCSB_signmask) {
@@ -684,16 +642,92 @@ public:
         return str_len;
     }
 
+public:
 
+    size_t addf(double value)
+    {
+        // TODO now buffer have to have at least 24 bytes left while in most of the cases it should be less
+        if(_bufferSize - _cursor < 24) {
+            _isOverflow = true;
+            return 0;
+        }
+
+        size_t size = fpconv_dtoa(value, &_buffer[_cursor]);
+        _cursor += size;
+        setStringEnd();
+        return size;
+    }
 #endif //#if TCSB_USE_FP
 
+#if TCSB_USE_SEPARATOR
+    /** Adds separator in the beginning if this is not the first addition*/
+    template <typename IntType>
+    size_t addIntValue(IntType n)
+    {
+        if(_cursor!=0) return addSeparator() + IntTypeToS(n);   // add separator (' ') by def. if not the first line
+        return IntTypeToS(n);
+    }
 
+
+    template <std::size_t SIZE>
+    size_t addValue(const CharType (&array)[SIZE]){
+        return sadd(array, SIZE) + addSeparator();
+    }
+
+
+    template<class CharConstPtr, typename = typename std::enable_if<std::is_same<CharConstPtr, CharType const*>::value>>
+    size_t sadd(CharConstPtr array, std::size_t size) {
+        if(_cursor!=0) return addSeparator() + add(array, size);   // add separator (' ') by def. if not the first line
+        return add(array, size);
+    }
+
+
+    size_t addValue(int8_t value)   { return addIntValue<int8_t>(value)   ;}   /// Converts int8_t to string and adds to the buffer
+    size_t addValue(uint8_t value)  { return addIntValue<uint8_t>(value)  ;}   /// Converts uint8_t to string and adds to the buffer
+    size_t addValue(int16_t value)  { return addIntValue<int16_t>(value)  ;}   /// Converts int16_t to string and adds to the buffer
+    size_t addValue(uint16_t value) { return addIntValue<uint16_t>(value) ;}   /// Converts uint16_t to string and adds to the buffer
+    size_t addValue(int32_t value)  { return addIntValue<int32_t>(value)  ;}   /// Converts int32_t to string and adds to the buffer
+    size_t addValue(uint32_t value) { return addIntValue<uint32_t>(value) ;}   /// Converts uint32_t to string and adds to the buffer
+    size_t addValue(int64_t value)  { return addIntValue<int64_t>(value)  ;}   /// Converts int64_t to string and adds to the buffer
+    size_t addValue(uint64_t value) { return addIntValue<uint64_t>(value) ;}   /// Converts uint64_t to string and adds to the buffer
+
+
+    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], int8_t value  )  { return
+                sadd(array, SIZE) + addSeparator() + IntTypeToS<int8_t>(value)   ; }   /// Converts int8_t to string and adds to the buffer
+    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], uint8_t value )  { return
+                sadd(array, SIZE) + addSeparator() + IntTypeToS<uint8_t>(value)  ; }   /// Converts uint8_t to string and adds to the buffer
+    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], int16_t value )  { return
+                sadd(array, SIZE) + addSeparator() + IntTypeToS<int16_t>(value)  ; }   /// Converts int16_t to string and adds to the buffer
+    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], uint16_t value)  { return
+                sadd(array, SIZE) + addSeparator() + IntTypeToS<uint16_t>(value) ; }   /// Converts uint16_t to string and adds to the buffer
+    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], int32_t value )  { return
+                sadd(array, SIZE) + addSeparator() + IntTypeToS<int32_t>(value)  ; }   /// Converts int32_t to string and adds to the buffer
+    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], uint32_t value)  { return
+                sadd(array, SIZE) + addSeparator() + IntTypeToS<uint32_t>(value) ; }   /// Converts uint32_t to string and adds to the buffer
+    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], int64_t value )  { return
+                sadd(array, SIZE) + addSeparator() + IntTypeToS<int64_t>(value)  ; }   /// Converts int64_t to string and adds to the buffer
+    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], uint64_t value)  { return
+                sadd(array, SIZE) + addSeparator() + IntTypeToS<uint64_t>(value) ; }   /// Converts uint64_t to string and adds to the buffer
+
+    size_t addSeparator(CharType sepCh)
+    {
+        if(_bufferSize - 1 == _cursor) return 0;
+        _buffer[_cursor] = (CharType)sepCh;
+        _cursor++;
+        setStringEnd();
+        return 1;
+    }
+
+    size_t addSeparator() { return addSeparator(_separator);}
+
+
+#endif  // #if TCSB_USE_SEPARATOR
 };
 
     //If class includes floating point, we have to define this two static arrays
 #if TCSB_USE_FP
     template<typename T>
-    constexpr const Fp BasicCStringBuilder<T>::powers_ten[TCSB_npowers];
+    constexpr const TCSB_Fp BasicCStringBuilder<T>::powers_ten[TCSB_npowers];
 
     template<typename T>
     constexpr const uint64_t BasicCStringBuilder<T>::tens[TCSB_tens_len];
