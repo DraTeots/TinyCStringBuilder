@@ -3,7 +3,7 @@
 ### C strings builder - sprintf replacement for embedded use. 
 
 
-Header only library written in C++11 aimed for embedded usage. Faster than sprintf.
+Header only library written in C++11 aimed for embedded usage. Faster than sprintf. 
 
 * No memory allocations & minimal memory foorprint
 * C string safe
@@ -12,6 +12,7 @@ Header only library written in C++11 aimed for embedded usage. Faster than sprin
 * Configurable at build time
 * **No std library** dependence
 
+Developed with thought of tiny or no-OS embedded applications, where  dynamic memory allocations are not advisable and C++ std:: library is not appliable. 
 
 ## Exameple
 
