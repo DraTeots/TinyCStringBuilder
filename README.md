@@ -10,6 +10,7 @@ Header only library written in C++11 aimed for embedded usage. Faster than sprin
 * **Faster** than sprintf family
 * Floating point support (which can be switched off)
 * Configurable at build time
+* **No std library** dependence
 
 
 ## Exameple
