@@ -17,14 +17,16 @@ SCENARIO( "Create and use simple CStringBuilder", "[CStringBuilder]" ) {
 
         WHEN("Add another string") {
             sb.add("ha!");
+            sb.add(" ");
+            sb.add(5);
 
             THEN("the size and capacity change") {
-                REQUIRE(sb.size() == 3);
+                REQUIRE(sb.size() == 5);
             }
 
             THEN("ha! should be there and 0 terminated") {
-                REQUIRE(sb.cStr() == std::string("ha!"));
-                REQUIRE(sb.cStr()[3] == '\0');
+                REQUIRE(sb.cStr() == std::string("ha! 5"));
+                REQUIRE(sb.cStr()[5] == '\0');
             }
         }
 
