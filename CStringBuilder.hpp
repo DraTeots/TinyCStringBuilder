@@ -174,7 +174,7 @@ public:
 
 
     /** Append by C string */
-    template<class CharConstPtr, typename = typename std::enable_if<std::is_same<CharConstPtr, CharType const*>::value>>
+    template<class CharConstPtr>
     size_t add(CharConstPtr array, std::size_t size) {
         if(_bufferSize - 1 == _cursor) return 0;
         size_t i;
@@ -207,21 +207,84 @@ public:
     size_t add(int64_t value)  { return IntTypeToS<int64_t>(value); }    /// Converts int64_t to string and adds to the buffer
     size_t add(uint64_t value) { return IntTypeToS<uint64_t>(value); }   /// Converts uint64_t to string and adds to the buffer
 
-    template <std::size_t SIZE>
-    size_t add(CharType (&array)[SIZE], uint64_t value){
-        return add(array, SIZE) + add((uint64_t)value);
-    }
+    template<class CharConstPtr>
+    size_t dadd(CharConstPtr array, std::size_t size, int8_t value) { return add(array, size) + add(value); }
 
     template <std::size_t SIZE>
-    size_t add(const CharType (&array)[SIZE], uint64_t value){
-        return add(&array[0], SIZE) + add((uint64_t)value);
-    }
+    size_t dadd(CharType (&array)[SIZE], int8_t value){ return add(array) + add(value); }
 
-    /** Append by C string */
-    template<class CharConstPtr, typename = typename std::enable_if<std::is_same<CharConstPtr, CharType const*>::value>>
-    size_t add(CharConstPtr array, std::size_t size, uint64_t value) {
-        return add(array, size) + add((uint64_t)value);
-    };
+    template <std::size_t SIZE>
+    size_t dadd(const CharType (&array)[SIZE], int8_t value){ return add(array) + add(value); }
+
+
+    template<class CharConstPtr>
+    size_t dadd(CharConstPtr array, std::size_t size, uint8_t value) { return add(array, size) + add(value); }
+
+    template <std::size_t SIZE>
+    size_t dadd(CharType (&array)[SIZE], uint8_t value){ return add(array) + add(value); }
+
+    template <std::size_t SIZE>
+    size_t dadd(const CharType (&array)[SIZE], uint8_t value){ return add(array) + add(value); }
+
+
+    template<class CharConstPtr>
+    size_t dadd(CharConstPtr array, std::size_t size, int16_t value) { return add(array, size) + add(value); }
+
+    template <std::size_t SIZE>
+    size_t dadd(CharType (&array)[SIZE], int16_t value){ return add(array) + add(value); }
+
+    template <std::size_t SIZE>
+    size_t dadd(const CharType (&array)[SIZE], int16_t value){ return add(array) + add(value); }
+
+
+    template<class CharConstPtr>
+    size_t dadd(CharConstPtr array, std::size_t size, uint16_t value) { return add(array, size) + add(value); }
+
+    template <std::size_t SIZE>
+    size_t dadd(CharType (&array)[SIZE], uint16_t value){ return add(array) + add(value); }
+
+    template <std::size_t SIZE>
+    size_t dadd(const CharType (&array)[SIZE], uint16_t value){ return add(array) + add(value); }
+
+
+    template<class CharConstPtr>
+    size_t dadd(CharConstPtr array, std::size_t size, int32_t value) { return add(array, size) + add(value); }
+
+    template <std::size_t SIZE>
+    size_t dadd(CharType (&array)[SIZE], int32_t value){ return add(array) + add(value); }
+
+    template <std::size_t SIZE>
+    size_t dadd(const CharType (&array)[SIZE], int32_t value){ return add(array) + add(value); }
+
+
+    template<class CharConstPtr>
+    size_t dadd(CharConstPtr array, std::size_t size, uint32_t value) { return add(array, size) + add(value); }
+
+    template <std::size_t SIZE>
+    size_t dadd(CharType (&array)[SIZE], uint32_t value){ return add(array) + add(value); }
+
+    template <std::size_t SIZE>
+    size_t dadd(const CharType (&array)[SIZE], uint32_t value){ return add(array) + add(value); }
+
+
+    template<class CharConstPtr>
+    size_t dadd(CharConstPtr array, std::size_t size, int64_t value) { return add(array, size) + add(value); }
+
+    template <std::size_t SIZE>
+    size_t dadd(CharType (&array)[SIZE], int64_t value){ return add(array) + add(value); }
+
+    template <std::size_t SIZE>
+    size_t dadd(const CharType (&array)[SIZE], int64_t value){ return add(array) + add(value); }
+
+
+    template<class CharConstPtr>
+    size_t dadd(CharConstPtr array, std::size_t size, uint64_t value) { return add(array, size) + add(value); }
+
+    template <std::size_t SIZE>
+    size_t dadd(CharType (&array)[SIZE], uint64_t value){ return add(array) + add(value); }
+
+    template <std::size_t SIZE>
+    size_t dadd(const CharType (&array)[SIZE], uint64_t value){ return add(array) + add(value); }
 
 
 
