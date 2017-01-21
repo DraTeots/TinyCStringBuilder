@@ -723,13 +723,13 @@ public:
 
 
     template<class CharConstPtr>
-    size_t daddf(CharConstPtr array, std::size_t size, double value) { return add(array, size) + add(value); }
+    size_t daddf(CharConstPtr array, std::size_t size, double value) { return add(array, size) + addf(value); }
 
     template <std::size_t SIZE>
-    size_t daddf(CharType (&array)[SIZE], double value){ return add(array) + add(value); }
+    size_t daddf(CharType (&array)[SIZE], double value){ return add(array) + addf(value); }
 
     template <std::size_t SIZE>
-    size_t daddf(const CharType (&array)[SIZE], double value){ return add(array) + add(value); }
+    size_t daddf(const CharType (&array)[SIZE], double value){ return add(array) + addf(value); }
 
 
 #endif //#if TCSB_USE_FP
