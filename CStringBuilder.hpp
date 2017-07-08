@@ -53,14 +53,13 @@ typedef struct TCSB_Fp {
 #endif  //#if TCSB_USE_FP
 
 
-template <typename CharType>
-class BasicCStringBuilder {
-    BasicCStringBuilder(const BasicCStringBuilder&) = delete;
-    BasicCStringBuilder& operator=(const BasicCStringBuilder&) = delete;
+class CStringBuilder {
+    CStringBuilder(const CStringBuilder&) = delete;
+    CStringBuilder& operator=(const CStringBuilder&) = delete;
 
 private:
-    CharType* _buffer;
-    CharType _separator = (CharType)' ';
+    char* _buffer;
+    char _separator = ' ';
     std::size_t _bufferSize;
     std::size_t _cursor;
     bool _isOverflow;
@@ -75,7 +74,7 @@ private:
         size_t i, j;
         char c;
 
-        for (i = 0, j = strlen(s)-1; i<j; i++, j--) {
+        for (i = 0, j = strlen((const char*)s)-1; i<j; i++, j--) {
             c = s[i];
             s[i] = s[j];
             s[j] = c;
@@ -90,7 +89,7 @@ private:
         if (_bufferSize - 1 <= _cursor) return 0;
         size_t i;
         bool isNegative;
-        CharType *s = &_buffer[_cursor];
+        char *s = &_buffer[_cursor];
 
         /* record sign */
         isNegative = n < 0;
@@ -137,7 +136,7 @@ public:
      given size.
      \endrst
      */
-    BasicCStringBuilder(CharType *buffer, std::size_t bufferSize) {
+    CStringBuilder(char *buffer, std::size_t bufferSize) {
         _buffer = buffer;
         _bufferSize = bufferSize;
         _cursor = 0;
@@ -153,7 +152,7 @@ public:
      \endrst
      */
     template <std::size_t SIZE>
-    explicit BasicCStringBuilder(CharType (&array)[SIZE])
+        explicit CStringBuilder(char(&array)[SIZE])
     {
         _buffer = array;
         _bufferSize = SIZE;
@@ -179,7 +178,7 @@ public:
         if(_bufferSize - 1 == _cursor) return 0;
         size_t i;
 
-        for(i=0; array[i] != (CharType)'\0' && i<size ; i++) {
+        for(i=0; array[i] != (char)'\0' && i<size ; i++) {
             if(_bufferSize - 1 == _cursor) break;
             _buffer[_cursor] = array[i];
             _cursor++;
@@ -188,13 +187,13 @@ public:
         return i;
     }
 
-    template <std::size_t SIZE>
-    size_t add(CharType (&array)[SIZE]){
-        return add(array, SIZE);
-    }
+    //template <std::size_t SIZE>
+    //size_t add(char (&array)[SIZE]){
+      //  return add(array, SIZE);
+    //}
 
     template <std::size_t SIZE>
-    size_t add(const CharType (&array)[SIZE]){
+    size_t add(const char (&array)[SIZE]){
         return add(&array[0], SIZE);
     }
 
@@ -211,80 +210,80 @@ public:
     size_t dadd(CharConstPtr array, std::size_t size, int8_t value) { return add(array, size) + add(value); }
 
     template <std::size_t SIZE>
-    size_t dadd(CharType (&array)[SIZE], int8_t value){ return add(array) + add(value); }
+    size_t dadd(char (&array)[SIZE], int8_t value){ return add(array) + add(value); }
 
     template <std::size_t SIZE>
-    size_t dadd(const CharType (&array)[SIZE], int8_t value){ return add(array) + add(value); }
+    size_t dadd(const char (&array)[SIZE], int8_t value){ return add(array) + add(value); }
 
 
     template<class CharConstPtr>
     size_t dadd(CharConstPtr array, std::size_t size, uint8_t value) { return add(array, size) + add(value); }
 
     template <std::size_t SIZE>
-    size_t dadd(CharType (&array)[SIZE], uint8_t value){ return add(array) + add(value); }
+    size_t dadd(char (&array)[SIZE], uint8_t value){ return add(array) + add(value); }
 
     template <std::size_t SIZE>
-    size_t dadd(const CharType (&array)[SIZE], uint8_t value){ return add(array) + add(value); }
+    size_t dadd(const char (&array)[SIZE], uint8_t value){ return add(array) + add(value); }
 
 
     template<class CharConstPtr>
     size_t dadd(CharConstPtr array, std::size_t size, int16_t value) { return add(array, size) + add(value); }
 
     template <std::size_t SIZE>
-    size_t dadd(CharType (&array)[SIZE], int16_t value){ return add(array) + add(value); }
+    size_t dadd(char (&array)[SIZE], int16_t value){ return add(array) + add(value); }
 
     template <std::size_t SIZE>
-    size_t dadd(const CharType (&array)[SIZE], int16_t value){ return add(array) + add(value); }
+    size_t dadd(const char (&array)[SIZE], int16_t value){ return add(array) + add(value); }
 
 
     template<class CharConstPtr>
     size_t dadd(CharConstPtr array, std::size_t size, uint16_t value) { return add(array, size) + add(value); }
 
-    template <std::size_t SIZE>
-    size_t dadd(CharType (&array)[SIZE], uint16_t value){ return add(array) + add(value); }
+    //template <std::size_t SIZE>
+    //size_t dadd(char (&array)[SIZE], uint16_t value){ return add(array) + add(value); }
 
     template <std::size_t SIZE>
-    size_t dadd(const CharType (&array)[SIZE], uint16_t value){ return add(array) + add(value); }
+    size_t dadd(const char (&array)[SIZE], uint16_t value){ return add(array) + add(value); }
 
 
     template<class CharConstPtr>
     size_t dadd(CharConstPtr array, std::size_t size, int32_t value) { return add(array, size) + add(value); }
 
     template <std::size_t SIZE>
-    size_t dadd(CharType (&array)[SIZE], int32_t value){ return add(array) + add(value); }
+    size_t dadd(char (&array)[SIZE], int32_t value){ return add(array) + add(value); }
 
     template <std::size_t SIZE>
-    size_t dadd(const CharType (&array)[SIZE], int32_t value){ return add(array) + add(value); }
+    size_t dadd(const char (&array)[SIZE], int32_t value){ return add(array) + add(value); }
 
 
     template<class CharConstPtr>
     size_t dadd(CharConstPtr array, std::size_t size, uint32_t value) { return add(array, size) + add(value); }
 
     template <std::size_t SIZE>
-    size_t dadd(CharType (&array)[SIZE], uint32_t value){ return add(array) + add(value); }
+    size_t dadd(char (&array)[SIZE], uint32_t value){ return add(array) + add(value); }
 
     template <std::size_t SIZE>
-    size_t dadd(const CharType (&array)[SIZE], uint32_t value){ return add(array) + add(value); }
+    size_t dadd(const char (&array)[SIZE], uint32_t value){ return add(array) + add(value); }
 
 
     template<class CharConstPtr>
     size_t dadd(CharConstPtr array, std::size_t size, int64_t value) { return add(array, size) + add(value); }
 
     template <std::size_t SIZE>
-    size_t dadd(CharType (&array)[SIZE], int64_t value){ return add(array) + add(value); }
+    size_t dadd(char (&array)[SIZE], int64_t value){ return add(array) + add(value); }
 
     template <std::size_t SIZE>
-    size_t dadd(const CharType (&array)[SIZE], int64_t value){ return add(array) + add(value); }
+    size_t dadd(const char (&array)[SIZE], int64_t value){ return add(array) + add(value); }
 
 
     template<class CharConstPtr>
     size_t dadd(CharConstPtr array, std::size_t size, uint64_t value) { return add(array, size) + add(value); }
 
     template <std::size_t SIZE>
-    size_t dadd(CharType (&array)[SIZE], uint64_t value){ return add(array) + add(value); }
+    size_t dadd(char (&array)[SIZE], uint64_t value){ return add(array) + add(value); }
 
     template <std::size_t SIZE>
-    size_t dadd(const CharType (&array)[SIZE], uint64_t value){ return add(array) + add(value); }
+    size_t dadd(const char (&array)[SIZE], uint64_t value){ return add(array) + add(value); }
 
 
 
@@ -726,10 +725,10 @@ public:
     size_t daddf(CharConstPtr array, std::size_t size, double value) { return add(array, size) + addf(value); }
 
     template <std::size_t SIZE>
-    size_t daddf(CharType (&array)[SIZE], double value){ return add(array) + addf(value); }
+    size_t daddf(char (&array)[SIZE], double value){ return add(array) + addf(value); }
 
     template <std::size_t SIZE>
-    size_t daddf(const CharType (&array)[SIZE], double value){ return add(array) + addf(value); }
+    size_t daddf(const char (&array)[SIZE], double value){ return add(array) + addf(value); }
 
 
 #endif //#if TCSB_USE_FP
@@ -745,12 +744,12 @@ public:
 
 
     template <std::size_t SIZE>
-    size_t addValue(const CharType (&array)[SIZE]){
+    size_t addValue(const char (&array)[SIZE]){
         return sadd(array, SIZE) + addSeparator();
     }
 
 
-    template<class CharConstPtr, typename = typename std::enable_if<std::is_same<CharConstPtr, CharType const*>::value>>
+    template<class CharConstPtr, typename = typename std::enable_if<std::is_same<CharConstPtr, char const*>::value>>
     size_t sadd(CharConstPtr array, std::size_t size) {
         if(_cursor!=0) return addSeparator() + add(array, size);   // add separator (' ') by def. if not the first line
         return add(array, size);
@@ -767,27 +766,27 @@ public:
     size_t addValue(uint64_t value) { return addIntValue<uint64_t>(value) ;}   /// Converts uint64_t to string and adds to the buffer
 
 
-    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], int8_t value  )  { return
+    template <std::size_t SIZE> size_t addValue(const char (&array)[SIZE], int8_t value  )  { return
                 sadd(array, SIZE) + addSeparator() + IntTypeToS<int8_t>(value)   ; }   /// Converts int8_t to string and adds to the buffer
-    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], uint8_t value )  { return
+    template <std::size_t SIZE> size_t addValue(const char (&array)[SIZE], uint8_t value )  { return
                 sadd(array, SIZE) + addSeparator() + IntTypeToS<uint8_t>(value)  ; }   /// Converts uint8_t to string and adds to the buffer
-    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], int16_t value )  { return
+    template <std::size_t SIZE> size_t addValue(const char (&array)[SIZE], int16_t value )  { return
                 sadd(array, SIZE) + addSeparator() + IntTypeToS<int16_t>(value)  ; }   /// Converts int16_t to string and adds to the buffer
-    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], uint16_t value)  { return
+    template <std::size_t SIZE> size_t addValue(const char (&array)[SIZE], uint16_t value)  { return
                 sadd(array, SIZE) + addSeparator() + IntTypeToS<uint16_t>(value) ; }   /// Converts uint16_t to string and adds to the buffer
-    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], int32_t value )  { return
+    template <std::size_t SIZE> size_t addValue(const char (&array)[SIZE], int32_t value )  { return
                 sadd(array, SIZE) + addSeparator() + IntTypeToS<int32_t>(value)  ; }   /// Converts int32_t to string and adds to the buffer
-    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], uint32_t value)  { return
+    template <std::size_t SIZE> size_t addValue(const char (&array)[SIZE], uint32_t value)  { return
                 sadd(array, SIZE) + addSeparator() + IntTypeToS<uint32_t>(value) ; }   /// Converts uint32_t to string and adds to the buffer
-    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], int64_t value )  { return
+    template <std::size_t SIZE> size_t addValue(const char (&array)[SIZE], int64_t value )  { return
                 sadd(array, SIZE) + addSeparator() + IntTypeToS<int64_t>(value)  ; }   /// Converts int64_t to string and adds to the buffer
-    template <std::size_t SIZE> size_t addValue(const CharType (&array)[SIZE], uint64_t value)  { return
+    template <std::size_t SIZE> size_t addValue(const char (&array)[SIZE], uint64_t value)  { return
                 sadd(array, SIZE) + addSeparator() + IntTypeToS<uint64_t>(value) ; }   /// Converts uint64_t to string and adds to the buffer
 
-    size_t addSeparator(CharType sepCh)
+    size_t addSeparator(char sepCh)
     {
         if(_bufferSize - 1 == _cursor) return 0;
-        _buffer[_cursor] = (CharType)sepCh;
+        _buffer[_cursor] = (char)sepCh;
         _cursor++;
         setStringEnd();
         return 1;
@@ -801,14 +800,14 @@ public:
 
     //If class includes floating point, we have to define this two static arrays
 #if TCSB_USE_FP
-    template<typename T>
-    constexpr const TCSB_Fp BasicCStringBuilder<T>::powers_ten[TCSB_npowers];
+    
+    constexpr const TCSB_Fp CStringBuilder::powers_ten[TCSB_npowers];
 
-    template<typename T>
-    constexpr const uint64_t BasicCStringBuilder<T>::tens[TCSB_tens_len];
+    
+    constexpr const uint64_t CStringBuilder::tens[TCSB_tens_len];
 #endif //#if TCSB_USE_FP
 
-typedef BasicCStringBuilder<char> CStringBuilder;
+
 //typedef BasicArrayWriter<wchar_t> WArrayWriter;
 
 #if !defined( TCSB_NO_NAMESPACE )
