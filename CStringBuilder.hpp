@@ -197,6 +197,7 @@ public:
         return add(&array[0], SIZE);
     }
 
+    size_t add(char value)     { return IntTypeToS<char>(value); }       /// Adds char to the buffer
     size_t add(int8_t value)   { return IntTypeToS<int8_t>(value); }     /// Converts int8_t to string and adds to the buffer
     size_t add(uint8_t value)  { return IntTypeToS<uint8_t>(value); }    /// Converts uint8_t to string and adds to the buffer
     size_t add(int16_t value)  { return IntTypeToS<int16_t>(value); }    /// Converts int16_t to string and adds to the buffer
