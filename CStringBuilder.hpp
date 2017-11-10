@@ -20,7 +20,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-
+/* 
+  Floating point part uses double to string conversion based on Grisu-algorithm.
+  http://florian.loitsch.com/publications/dtoa-pldi2010.pdf
+  I don't remember where this code is taken from, but I'm sure it was MIT licensed
+ */
 
 #ifndef HEADERLOCK_CSTRINGBUILDER_HPP
 #define HEADERLOCK_CSTRINGBUILDER_HPP
