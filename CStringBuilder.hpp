@@ -20,11 +20,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-/* 
-  Floating point part uses double to string conversion based on Grisu-algorithm.
-  http://florian.loitsch.com/publications/dtoa-pldi2010.pdf
-  I don't remember where this code is taken from, but I'm sure it was MIT licensed
- */
 
 #ifndef HEADERLOCK_CSTRINGBUILDER_HPP
 #define HEADERLOCK_CSTRINGBUILDER_HPP
@@ -34,13 +29,22 @@ SOFTWARE.
 #include <cmath>
 #include <type_traits>
 
-
 #pragma diag_suppress  186
 
 // Allows to switch on/off floating point support.
 // Using floating point operations is ON by default
 #if !defined( TCSB_USE_FP )
     #define TCSB_USE_FP (1)
+#endif
+
+// using (NOT) OBSOLETE describe-add function 
+#if !defined (TCSB_USE_DADD)
+#define TCSB_USE_DADD 0
+#endif
+
+// using (NOT) OBSOLETE separator-add function
+#if !defined (TCSB_USE_SEPARATOR)
+#define TCSB_USE_SEPARATOR 0
 #endif
 
 // Keil UVision and some other controller compilers happen to have problems with namespaces (and nested namespaces)
@@ -68,7 +72,7 @@ private:
     std::size_t _cursor;
     bool _isOverflow;
 
-    void setStringEnd() {
+    void set_string_end() {
         _buffer[_cursor] = '\0';
     }
 
@@ -85,54 +89,6 @@ private:
         }
     }
 
-
-    /** K&R int to string conversion */
-    template <typename IntType>
-    size_t IntTypeToS(IntType n)
-    {
-        if (_bufferSize - 1 <= _cursor) return 0;
-        size_t i;
-        bool isNegative;
-        char *s = &_buffer[_cursor];
-
-        /* record sign */
-        isNegative = n < 0;
-        if (isNegative) {
-            _cursor++;       /* increase length fo 1 */
-            n = -n;          /* make n positive */
-
-            // Check buffer overflow
-            if (_bufferSize - 1 <= _cursor) {
-                setStringEnd();
-                return 1;
-            }
-        }
-
-        i = 0;
-        do {       /* generate digits in reverse order */
-            s[i++] = n % 10 + '0';   /* get next digit */
-            n /= 10;
-
-            _cursor++;
-
-        } while (n > 0 && _cursor < _bufferSize-1);     /* delete it */
-
-        // Check buffer overflow
-        if (_bufferSize - 1 <= _cursor) {
-            setStringEnd();
-            return 1;
-        }
-
-        // Add negative sign!
-        if (isNegative) {
-            s[i++] = '-';
-        }
-
-        s[i] = '\0';
-        reverse(s);
-        return i;
-    }
-
 public:
     /**
      \rst
@@ -145,8 +101,7 @@ public:
         _bufferSize = bufferSize;
         _cursor = 0;
         _isOverflow = false;
-        setStringEnd();
-
+        set_string_end();
     }
 
     /**
@@ -162,18 +117,68 @@ public:
         _bufferSize = SIZE;
         _cursor = 0;
         _isOverflow = false;
-        setStringEnd();
+        set_string_end();
+    }
+    
+    /** K&R int to string conversion */
+    template <typename IntType>
+    size_t add_integer(IntType n)
+    {
+        if (_bufferSize - 1 <= _cursor) return 0;
+        size_t i;
+        bool isNegative;
+        char *s = &_buffer[_cursor];
+
+        /* record sign */
+        isNegative = n < 0;
+        if (isNegative) {
+            _cursor++; /* increase length fo 1 */
+            n = -n; /* make n positive */
+
+            // Check buffer overflow
+            if(_bufferSize - 1 <= _cursor) {
+                set_string_end();
+                return 1;
+            }
+        }
+
+        i = 0;
+        do {
+            /* generate digits in reverse order */
+            s[i++] = n % 10 + '0'; /* get next digit */
+            n /= 10;
+
+            _cursor++;
+
+        } while (n > 0 && _cursor < _bufferSize - 1);     /* delete it */
+
+        // Check buffer overflow
+        if(_bufferSize - 1 <= _cursor) {
+            set_string_end();
+            return 1;
+        }
+
+        // Add negative sign!
+        if(isNegative) {
+            s[i++] = '-';
+        }
+
+        s[i] = '\0';
+        reverse(s);
+        return i;
     }
 
 
     /** returns current size of the _buffer */
-    size_t bufferSize(void) { return _bufferSize; }
+    size_t buffer_size(void) { return _bufferSize; }
 
 
     /** The actual size of the resulting string */
     size_t size(void) { return _cursor; }
 
-    char * cStr() { return _buffer;}
+    
+    /** returns pointer to a char[] buffer */
+    char * cstr() { return _buffer;}
 
 
     /** Append by C string */
@@ -187,15 +192,11 @@ public:
             _buffer[_cursor] = array[i];
             _cursor++;
         }
-        setStringEnd();
+        set_string_end();
         return i;
     }
 
-    //template <std::size_t SIZE>
-    //size_t add(char (&array)[SIZE]){
-      //  return add(array, SIZE);
-    //}
-
+    /// add const string
     template <std::size_t SIZE>
     size_t add(const char (&array)[SIZE]){
         return add(&array[0], SIZE);
@@ -207,19 +208,20 @@ public:
         if (_bufferSize - 1 == _cursor) return 0;
         _buffer[_cursor] = (char)value;
         _cursor++;
-        setStringEnd();
+        set_string_end();
         return 1;
     }       
 
-    size_t add(int8_t value)   { return IntTypeToS<int8_t>(value); }     /// Converts int8_t to string and adds to the buffer
-    size_t add(uint8_t value)  { return IntTypeToS<uint8_t>(value); }    /// Converts uint8_t to string and adds to the buffer
-    size_t add(int16_t value)  { return IntTypeToS<int16_t>(value); }    /// Converts int16_t to string and adds to the buffer
-    size_t add(uint16_t value) { return IntTypeToS<uint16_t>(value); }   /// Converts uint16_t to string and adds to the buffer
-    size_t add(int32_t value)  { return IntTypeToS<int32_t>(value); }    /// Converts int32_t to string and adds to the buffer
-    size_t add(uint32_t value) { return IntTypeToS<uint32_t>(value); }   /// Converts uint32_t to string and adds to the buffer
-    size_t add(int64_t value)  { return IntTypeToS<int64_t>(value); }    /// Converts int64_t to string and adds to the buffer
-    size_t add(uint64_t value) { return IntTypeToS<uint64_t>(value); }   /// Converts uint64_t to string and adds to the buffer
+    size_t add(int8_t value)   { return add_integer<int8_t>(value); }     /// Converts int8_t to string and adds to the buffer
+    size_t add(uint8_t value)  { return add_integer<uint8_t>(value); }    /// Converts uint8_t to string and adds to the buffer
+    size_t add(int16_t value)  { return add_integer<int16_t>(value); }    /// Converts int16_t to string and adds to the buffer
+    size_t add(uint16_t value) { return add_integer<uint16_t>(value); }   /// Converts uint16_t to string and adds to the buffer
+    size_t add(int32_t value)  { return add_integer<int32_t>(value); }    /// Converts int32_t to string and adds to the buffer
+    size_t add(uint32_t value) { return add_integer<uint32_t>(value); }   /// Converts uint32_t to string and adds to the buffer
+    size_t add(int64_t value)  { return add_integer<int64_t>(value); }    /// Converts int64_t to string and adds to the buffer
+    size_t add(uint64_t value) { return add_integer<uint64_t>(value); }   /// Converts uint64_t to string and adds to the buffer
 
+#if TCSB_USE_DADD
     template<class CharConstPtr>
     size_t dadd(CharConstPtr array, std::size_t size, int8_t value) { return add(array, size) + add(value); }
 
@@ -228,7 +230,6 @@ public:
 
     template <std::size_t SIZE>
     size_t dadd(const char (&array)[SIZE], int8_t value){ return add(array) + add(value); }
-
 
     template<class CharConstPtr>
     size_t dadd(CharConstPtr array, std::size_t size, uint8_t value) { return add(array, size) + add(value); }
@@ -239,7 +240,6 @@ public:
     template <std::size_t SIZE>
     size_t dadd(const char (&array)[SIZE], uint8_t value){ return add(array) + add(value); }
 
-
     template<class CharConstPtr>
     size_t dadd(CharConstPtr array, std::size_t size, int16_t value) { return add(array, size) + add(value); }
 
@@ -249,16 +249,11 @@ public:
     template <std::size_t SIZE>
     size_t dadd(const char (&array)[SIZE], int16_t value){ return add(array) + add(value); }
 
-
     template<class CharConstPtr>
     size_t dadd(CharConstPtr array, std::size_t size, uint16_t value) { return add(array, size) + add(value); }
 
-    //template <std::size_t SIZE>
-    //size_t dadd(char (&array)[SIZE], uint16_t value){ return add(array) + add(value); }
-
     template <std::size_t SIZE>
     size_t dadd(const char (&array)[SIZE], uint16_t value){ return add(array) + add(value); }
-
 
     template<class CharConstPtr>
     size_t dadd(CharConstPtr array, std::size_t size, int32_t value) { return add(array, size) + add(value); }
@@ -269,7 +264,6 @@ public:
     template <std::size_t SIZE>
     size_t dadd(const char (&array)[SIZE], int32_t value){ return add(array) + add(value); }
 
-
     template<class CharConstPtr>
     size_t dadd(CharConstPtr array, std::size_t size, uint32_t value) { return add(array, size) + add(value); }
 
@@ -278,7 +272,6 @@ public:
 
     template <std::size_t SIZE>
     size_t dadd(const char (&array)[SIZE], uint32_t value){ return add(array) + add(value); }
-
 
     template<class CharConstPtr>
     size_t dadd(CharConstPtr array, std::size_t size, int64_t value) { return add(array, size) + add(value); }
@@ -289,7 +282,6 @@ public:
     template <std::size_t SIZE>
     size_t dadd(const char (&array)[SIZE], int64_t value){ return add(array) + add(value); }
 
-
     template<class CharConstPtr>
     size_t dadd(CharConstPtr array, std::size_t size, uint64_t value) { return add(array, size) + add(value); }
 
@@ -298,8 +290,7 @@ public:
 
     template <std::size_t SIZE>
     size_t dadd(const char (&array)[SIZE], uint64_t value){ return add(array) + add(value); }
-
-
+#endif  // TCSB_USE_DADD
 
 #if TCSB_USE_FP
 
@@ -740,7 +731,7 @@ public:
 
         size_t size = fpconv_dtoa(value, &_buffer[_cursor]);
         _cursor += size;
-        setStringEnd();
+        set_string_end();
         return size;
     }
 
@@ -822,8 +813,27 @@ public:
 #endif  // #if TCSB_USE_SEPARATOR
 };
 
+    /// add const string
+    template <std::size_t SIZE>
+    CStringBuilder& operator<<(CStringBuilder& sb, const char(&array)[SIZE]) { sb.add(array); return sb; }  /// Adds string array
+    CStringBuilder& operator<<(CStringBuilder& sb, char value)     { sb.add(value); return sb; }   /// Add char
+    CStringBuilder& operator<<(CStringBuilder& sb, int8_t value)   { sb.add(value); return sb; }   /// Add int8_t to string and adds to the buffer
+    CStringBuilder& operator<<(CStringBuilder& sb, uint8_t value)  { sb.add(value); return sb; }   /// Add uint8_t to string and adds to the buffer
+    CStringBuilder& operator<<(CStringBuilder& sb, int16_t value)  { sb.add(value); return sb; }   /// Add int16_t to string and adds to the buffer
+    CStringBuilder& operator<<(CStringBuilder& sb, uint16_t value) { sb.add(value); return sb; }   /// Add uint16_t to string and adds to the buffer
+    CStringBuilder& operator<<(CStringBuilder& sb, int32_t value)  { sb.add(value); return sb; }   /// Add int32_t to string and adds to the buffer
+    CStringBuilder& operator<<(CStringBuilder& sb, uint32_t value) { sb.add(value); return sb; }   /// Add uint32_t to string and adds to the buffer
+    CStringBuilder& operator<<(CStringBuilder& sb, int64_t value)  { sb.add(value); return sb; }   /// Add int64_t to string and adds to the buffer
+    CStringBuilder& operator<<(CStringBuilder& sb, uint64_t value) { sb.add(value); return sb; }   /// Add uint64_t to string and adds to the buffer
 
 
+#if TCSB_USE_FP
+    CStringBuilder& operator<<(CStringBuilder& sb, const double& value)  
+    {
+        sb.addf(value);
+        return sb;
+    }
+#endif // TCSB_USE_FP
 
 //typedef BasicArrayWriter<wchar_t> WArrayWriter;
 
