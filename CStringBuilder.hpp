@@ -735,7 +735,7 @@ public:
         return size;
     }
 
-
+#if TCSB_USE_DADD
     template<class CharConstPtr>
     size_t daddf(CharConstPtr array, std::size_t size, double value) { return add(array, size) + addf(value); }
 
@@ -744,7 +744,7 @@ public:
 
     template <std::size_t SIZE>
     size_t daddf(const char (&array)[SIZE], double value){ return add(array) + addf(value); }
-
+#endif //TCSB_USE_DADD
 
 #endif //#if TCSB_USE_FP
 
