@@ -813,9 +813,29 @@ public:
 #endif  // #if TCSB_USE_SEPARATOR
 };
 
+class CharPointerHelper {
+public:
+    CharPointerHelper(const char* buffer): _buffer(buffer) {}
+
+    const char* buffer() const { return _buffer; }
+    CharPointerHelper& operator= (const char* s)
+    {
+        this->_buffer = s;
+        return *this;
+    }
+private:
+    const char* _buffer;
+};
+
+
+
+typedef CharPointerHelper from_pchar;
+
+
     /// add const string
     template <std::size_t SIZE>
     CStringBuilder& operator<<(CStringBuilder& sb, const char(&array)[SIZE]) { sb.add(array); return sb; }  /// Adds string array
+    CStringBuilder& operator<<(CStringBuilder& sb, from_pchar value) { sb.add(value.buffer(), sb.size()); return sb; }  /// Adds string array
     CStringBuilder& operator<<(CStringBuilder& sb, char value)     { sb.add(value); return sb; }   /// Add char
     CStringBuilder& operator<<(CStringBuilder& sb, int8_t value)   { sb.add(value); return sb; }   /// Add int8_t to string and adds to the buffer
     CStringBuilder& operator<<(CStringBuilder& sb, uint8_t value)  { sb.add(value); return sb; }   /// Add uint8_t to string and adds to the buffer
