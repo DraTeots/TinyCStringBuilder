@@ -845,6 +845,7 @@ typedef CharPointerHelper from_pchar;
     CStringBuilder& operator<<(CStringBuilder& sb, uint32_t value) { sb.add(value); return sb; }   /// Add uint32_t to string and adds to the buffer
     CStringBuilder& operator<<(CStringBuilder& sb, int64_t value)  { sb.add(value); return sb; }   /// Add int64_t to string and adds to the buffer
     CStringBuilder& operator<<(CStringBuilder& sb, uint64_t value) { sb.add(value); return sb; }   /// Add uint64_t to string and adds to the buffer
+    CStringBuilder& operator<<(CStringBuilder& sb, size_t value)   { sb.add_integer<size_t>(value); return sb; }   /// Add uint64_t to string and adds to the buffer
 
 
 #if TCSB_USE_FP
