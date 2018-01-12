@@ -82,7 +82,7 @@ private:
         size_t i, j;
         char c;
 
-        for (i = 0, j = strlen((const char*)s)-1; i<j; i++, j--) {
+        for (i = 0, j = std::strlen((const char*)s)-1; i<j; i++, j--) {
             c = s[i];
             s[i] = s[j];
             s[j] = c;
@@ -602,8 +602,8 @@ private:
 
         /* write plain integer */
         if(K >= 0 && (exp < (ndigits + 7))) {
-            memcpy(dest, digits, ndigits);
-            memset(dest + ndigits, '0', K);
+            std::memcpy(dest, digits, ndigits);
+            std::memset(dest + ndigits, '0', K);
 
             return ndigits + K;
         }
@@ -616,16 +616,16 @@ private:
                 offset = -offset;
                 dest[0] = '0';
                 dest[1] = '.';
-                memset(dest + 2, '0', offset);
-                memcpy(dest + offset + 2, digits, ndigits);
+                std::memset(dest + 2, '0', offset);
+                std::memcpy(dest + offset + 2, digits, ndigits);
 
                 return ndigits + 2 + offset;
 
                 /* fp > 1.0 */
             } else {
-                memcpy(dest, digits, offset);
+                std::memcpy(dest, digits, offset);
                 dest[offset] = '.';
-                memcpy(dest + offset + 1, digits + offset, ndigits - offset);
+                std::memcpy(dest + offset + 1, digits + offset, ndigits - offset);
 
                 return ndigits + 1;
             }
@@ -639,7 +639,7 @@ private:
 
         if(ndigits > 1) {
             dest[idx++] = '.';
-            memcpy(dest + idx, digits + 1, ndigits - 1);
+            std::memcpy(dest + idx, digits + 1, ndigits - 1);
             idx += ndigits - 1;
         }
 
