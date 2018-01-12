@@ -212,6 +212,7 @@ public:
         return 1;
     }       
 
+    size_t add(bool value)     { return add_integer<uint8_t>((uint8_t)value); }     /// Converts bool to string and adds to the buffer
     size_t add(int8_t value)   { return add_integer<int8_t>(value); }     /// Converts int8_t to string and adds to the buffer
     size_t add(uint8_t value)  { return add_integer<uint8_t>(value); }    /// Converts uint8_t to string and adds to the buffer
     size_t add(int16_t value)  { return add_integer<int16_t>(value); }    /// Converts int16_t to string and adds to the buffer
@@ -837,6 +838,7 @@ typedef CharPointerHelper from_pchar;
     CStringBuilder& operator<<(CStringBuilder& sb, const char(&array)[SIZE]) { sb.add(array); return sb; }  /// Adds string array
     CStringBuilder& operator<<(CStringBuilder& sb, from_pchar value) { sb.add(value.buffer(), sb.size()); return sb; }  /// Adds string array
     CStringBuilder& operator<<(CStringBuilder& sb, char value)     { sb.add(value); return sb; }   /// Add char
+    CStringBuilder& operator<<(CStringBuilder& sb, bool value)     { sb.add(value); return sb; }   /// Add int8_t to string and adds to the buffer
     CStringBuilder& operator<<(CStringBuilder& sb, int8_t value)   { sb.add(value); return sb; }   /// Add int8_t to string and adds to the buffer
     CStringBuilder& operator<<(CStringBuilder& sb, uint8_t value)  { sb.add(value); return sb; }   /// Add uint8_t to string and adds to the buffer
     CStringBuilder& operator<<(CStringBuilder& sb, int16_t value)  { sb.add(value); return sb; }   /// Add int16_t to string and adds to the buffer
